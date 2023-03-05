@@ -2,7 +2,9 @@
 #include <LiquidCrystal.h>
 #include <SoftwareSerial.h>
 
-SoftwareSerial ss(9, 8);
+const int ssRX = 9;
+const int ssTX = 8;
+SoftwareSerial ss(ssRX, ssTX);
 LiquidCrystal lcd(6, 7, 2, 3, 4, 5);
 MHZ19 sensor;
 bool pc_present = false;
@@ -12,9 +14,13 @@ void lcd_blankout(uint8_t line = 0xFF);
 void setup()
 {
     pinMode(13, OUTPUT);
+    pinMode(ssRX, INPUT_PULLUP);
+    pinMode(ssTX, INPUT);
 	Serial.begin(9600);
     lcd.begin(8, 2);
+    lcd.clear();
     lcd.print("Init...");
+    delay(100);
     uint8_t counter = 0xFF;
     while (counter--)
     {
@@ -22,21 +28,24 @@ void setup()
         if (Serial.available())
         {
             pc_present = true;
-            lcd.setCursor(8 - 3, 0);
-            lcd.print(" PC");
             break;
         }
-        delay(20); //20mS * 255 ~= 5s
+        delay(25); //~= 6s
     }
     PORTB &= ~_BV(5);
     Serial.end();
+    lcd.clear();
     delay(100);
-    ss.begin(9600);
     if (pc_present)
     {
-        pinMode(8, INPUT);
+        lcd.setCursor(8 - 3, 0);
+        lcd.print("^PC");
     }
-    lcd.clear();
+    else
+    {
+        pinMode(ssTX, OUTPUT);
+    }
+    ss.begin(9600);
     lcd.setCursor(8 - 3, 1);
     lcd.print("ppm");
 }
