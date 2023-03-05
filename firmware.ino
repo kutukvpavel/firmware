@@ -32,6 +32,10 @@ void setup()
     Serial.end();
     delay(100);
     ss.begin(9600);
+    if (pc_present)
+    {
+        pinMode(8, INPUT);
+    }
     lcd.clear();
     lcd.setCursor(8 - 3, 1);
     lcd.print("ppm");
